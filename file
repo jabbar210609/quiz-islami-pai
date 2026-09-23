@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Islami PAI Kelas XI</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#071923,#0d3a50);color:#eef7ff;min-height:100vh}
+.container{width:94%;max-width:900px;margin:auto;padding:20px 0 40px}
+header{display:flex;justify-content:space-between;align-items:center;padding:10px 0 20px}
+.badge{display:inline-block;padding:7px 12px;border:1px solid #47758d;border-radius:20px;color:#c8ff4d;font-size:12px}
+.screen{display:none}.screen.active{display:block}
+.card{background:#102b3d;border:1px solid #315c73;border-radius:18px;padding:22px;margin:15px 0;box-shadow:0 10px 30px #0005}
+.hero{text-align:center;padding:50px 10px 25px}
+h1{font-size:46px;margin:15px 0}
+h2,h3{margin-top:0}
+.muted{color:#a9c0ce;line-height:1.6}
+.btn{border:0;border-radius:11px;padding:13px 18px;background:#c8ff4d;color:#152207;font-weight:bold;cursor:pointer;font-size:14px}
+.btn:hover{filter:brightness(1.08)}
+.btn.secondary{background:transparent;color:#fff;border:1px solid #47758d}
+.btn.danger{background:#692b35;color:#fff}
+.buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.form{max-width:440px;margin:35px auto}
+.field{margin:14px 0}.field label{display:block;color:#b5cbd6;font-size:13px;margin-bottom:7px}
+.field input{width:100%;padding:13px;border-radius:10px;border:1px solid #47758d;background:#071d2b;color:white;outline:none}
+.notice{padding:11px;border-radius:10px;background:#092333;color:#b8ccd6;margin:12px 0;font-size:13px}
+.error{background:#49252c;color:#ffc4ca}
+.success{background:#17442d;color:#c8ffd7}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.quiz-top{display:flex;justify-content:space-between;gap:10px}
+.progress{height:9px;background:#173c50;border-radius:10px;overflow:hidden;margin:15px 0}
+.progress span{display:block;height:100%;width:0;background:#c8ff4d}
+.question{font-size:21px;line-height:1.5;margin:25px 0}
+.answers{display:grid;gap:10px}
+.answer{width:100%;text-align:left;padding:15px;border-radius:11px;border:1px solid #47758d;background:#0a2231;color:white;cursor:pointer;font-size:15px}
+.answer:hover{background:#12384c}
+.answer.correct{background:#174a30;border-color:#70d18b}
+.answer.wrong{background:#542630;border-color:#e16c78}
+.answer:disabled{cursor:default}
+.score{font-size:64px;font-weight:900;color:#c8ff4d}
+.center{text-align:center}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px;border-bottom:1px solid #285166;text-align:left;font-size:13px}
+th{color:#c8ff4d}.table-wrap{overflow:auto}
+.hidden{display:none!important}
+@media(max-width:650px){h1{font-size:38px}.grid{grid-template-columns:1fr}.question{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="container">
+<header><b>🕌 QUIZ ISLAMI</b><span class="badge">PAI KELAS XI</span></header>
+
+<section id="home" class="screen active">
+<div class="hero">
+<span class="badge">GAME EDUKASI PAI</span>
+<h1>Quiz Islami</h1>
+<p class="muted">Kuis PAI dengan sistem akun Pemain dan Creator.</p>
+<div class="buttons">
+<button class="btn" onclick="openLogin('player')">🎮 Login Pemain</button>
+<button class="btn secondary" onclick="openLogin('creator')">🛠️ Login Creator</button>
+</div>
+</div>
+<div class="grid">
+<div class="card"><h3>🎮 Pemain</h3><p class="muted">Kerjakan 15 soal dan dapatkan nilai otomatis.</p></div>
+<div class="card"><h3>🛠️ Creator</h3><p class="muted">Lihat rekap hasil semua pemain.</p></div>
+<div class="card"><h3>💾 Browser</h3><p class="muted">Akun dan hasil tersimpan di browser.</p></div>
+</div>
+</section>
+
+<section id="login" class="screen">
+<div class="card form">
+<h2 id="loginTitle">Login</h2><p id="loginSub" class="muted"></p>
+<div id="loginMsg"></div>
+<div class="field"><label>Username</label><input id="loginUser" autocomplete="username"></div>
+<div class="field"><label>Password</label><input id="loginPass" type="password" autocomplete="current-password"></div>
+<div class="buttons">
+<button class="btn" onclick="login()">Masuk</button>
+<button class="btn secondary" onclick="showScreen('home')">Kembali</button>
+</div>
+<div id="loginHint" class="notice"></div>
+<div class="notice center">Belum punya akun pemain?<br><br><button class="btn secondary" onclick="openRegister()">📝 Daftar Akun</button></div>
+</div>
+</section>
+
+<section id="register" class="screen">
+<div class="card form">
+<h2>📝 Daftar Akun Pemain</h2>
+<p class="muted">Buat username dan password sendiri.</p>
+<div id="registerMsg"></div>
+<div class="field"><label>Username</label><input id="regUser"></div>
+<div class="field"><label>Password</label><input id="regPass" type="password"></div>
+<div class="field"><label>Konfirmasi Password</label><input id="regPass2" type="password"></div>
+<div class="buttons">
+<button class="btn" onclick="registerPlayer()">Buat Akun</button>
+<button class="btn secondary" onclick="openLogin('player')">Kembali</button>
+</div>
+</div>
+</section>
+
+<section id="player" class="screen">
+<div class="quiz-top"><div><span class="badge">PEMAIN</span><h2 id="playerWelcome"></h2></div><button class="btn secondary" onclick="logout()">Keluar</button></div>
+
+<div id="startCard" class="card">
+<h2>📚 Siap mengerjakan?</h2>
+<p class="muted">Materi: Q.S. Ali 'Imran 190–191, IPTEK, dan berpikir kritis. Terdapat 15 soal.</p>
+<button class="btn" onclick="startQuiz()">🚀 Mulai Kuis</button>
+</div>
+
+<div id="quizCard" class="card hidden">
+<div class="quiz-top"><b id="questionNumber"></b><b id="currentScore">Skor: 0</b></div>
+<div class="progress"><span id="progressBar"></span></div>
+<div id="questionText" class="question"></div>
+<div id="answerBox" class="answers"></div>
+<div class="quiz-top" style="margin-top:18px;align-items:center">
+<span id="feedback" class="muted">Pilih satu jawaban.</span>
+<button id="nextButton" class="btn" disabled onclick="nextQuestion()">➡️ Berikutnya</button>
+</div>
+</div>
+
+<div id="resultCard" class="card center hidden"></div>
+
+<div id="accountCard" class="card">
+<h3>🔐 Pengaturan Akun Pemain</h3>
+<p class="muted">Ganti username dan/atau password akun pemain.</p>
+<div id="accountMsg"></div>
+<div class="field"><label>Username baru</label><input id="newPlayerUser"></div>
+<div class="field"><label>Password baru (opsional)</label><input id="newPlayerPass" type="password"></div>
+<button class="btn" onclick="changePlayerAccount()">Simpan Perubahan</button>
+</div>
+</section>
+
+<section id="creator" class="screen">
+<div class="quiz-top"><div><span class="badge">CREATOR</span><h2>📊 Dashboard Nilai</h2></div><button class="btn secondary" onclick="logout()">Keluar</button></div>
+
+<div class="grid">
+<div class="card"><small>Total Percobaan</small><h2 id="totalAttempts">0</h2></div>
+<div class="card"><small>Rata-rata Skor</small><h2 id="averageScore">0</h2></div>
+<div class="card"><small>Skor Tertinggi</small><h2 id="highestScore">0</h2></div>
+</div>
+
+<div class="card">
+<h3>🔐 Pengaturan Creator</h3>
+<p class="muted">Ganti username dan/atau password Creator.</p>
+<div id="creatorMsg"></div>
+<div class="field"><label>Username Creator baru</label><input id="newCreatorUser"></div>
+<div class="field"><label>Password Creator baru (opsional)</label><input id="newCreatorPass" type="password"></div>
+<button class="btn" onclick="changeCreatorAccount()">Simpan Perubahan</button>
+</div>
+
+<div class="card">
+<div class="quiz-top"><h3>📋 Rekap Hasil Pemain</h3>
+<div class="buttons">
+<button class="btn secondary" onclick="exportCSV()">📥 Export CSV</button>
+<button class="btn danger" onclick="clearResults()">🗑️ Hapus Rekap</button>
+</div></div>
+<div class="table-wrap">
+<table><thead><tr><th>Username</th><th>Benar</th><th>Salah</th><th>Skor</th><th>Nilai</th><th>Waktu</th></tr></thead>
+<tbody id="resultRows"></tbody></table>
+</div>
+</div>
+</section>
+</div>
+
+<script>
+"use strict";
+
+const QUESTIONS=[
+["Menurut Q.S. Ali 'Imran ayat 190, apa tanda kebesaran Allah bagi orang yang berpikir?",["Penciptaan langit dan bumi serta pergantian malam dan siang","Banyaknya harta manusia","Kemajuan teknologi semata","Kekuatan fisik"],0],
+["Siapakah Ulul Albab?",["Orang yang menggunakan akal untuk mengingat dan merenungkan kebesaran Allah","Orang yang hanya mengejar kekayaan","Orang yang tidak mau berpikir","Orang yang menghafal tanpa memahami"],0],
+["Sikap yang sesuai Q.S. Ali 'Imran 190–191 adalah ...",["Merenungkan ciptaan Allah dan mengingat-Nya","Mengabaikan alam","Menerima semua informasi","Menggunakan teknologi tanpa tanggung jawab"],0],
+["Berpikir kritis berarti ...",["Menganalisis informasi sebelum mengambil kesimpulan","Mempercayai semua informasi","Menolak semua pendapat","Mengikuti informasi paling populer"],0],
+["Apa yang sebaiknya dilakukan sebelum menyebarkan informasi?",["Memeriksa kebenaran dan sumbernya","Langsung menyebarkan","Mengubah isi agar menarik","Mengikuti komentar terbanyak"],0],
+["Penggunaan IPTEK yang bertanggung jawab adalah ...",["Menggunakannya untuk hal bermanfaat dan tidak merugikan","Menyebarkan berita palsu","Menggunakan tanpa aturan","Menyalahgunakan data"],0],
+["Mengapa manusia dianjurkan memperhatikan penciptaan langit dan bumi?",["Agar menyadari kebesaran Allah","Agar tidak perlu belajar","Agar menghindari teknologi","Agar mengabaikan lingkungan"],0],
+["Contoh berpikir kritis di internet adalah ...",["Membandingkan informasi dengan sumber tepercaya","Membagikan karena judul menarik","Percaya akun anonim","Mengikuti semua tren"],0],
+["Sikap terhadap informasi yang belum terbukti adalah ...",["Tidak langsung mempercayai atau menyebarkannya","Langsung mengirimkan","Menganggap pasti benar","Menghapus semua informasi"],0],
+["Hubungan IPTEK dan ajaran Islam adalah ...",["Ilmu dan teknologi digunakan secara bijak untuk kemaslahatan","Semua teknologi dilarang","Teknologi tanpa batas","Menolak ilmu"],0],
+["Pergantian siang dan malam dalam Q.S. Ali 'Imran merupakan ...",["Tanda kekuasaan Allah yang perlu direnungkan","Alasan berhenti belajar","Hal yang tak perlu diperhatikan","Bukti manusia tak perlu berpikir"],0],
+["Orang yang berpikir kritis seharusnya ...",["Mempertimbangkan bukti dan alasan sebelum menyimpulkan","Cepat menyimpulkan","Menolak fakta berbeda","Mengikuti mayoritas"],0],
+["Manfaat mempelajari Q.S. Ali 'Imran 190–191 adalah ...",["Mendorong manusia menggunakan akal dan merenungkan ciptaan Allah","Berhenti menggunakan akal","Mengutamakan dunia","Menghindari belajar"],0],
+["Sikap bertanggung jawab di media sosial adalah ...",["Menjaga etika dan memastikan informasi sebelum membagikan","Menyebarkan data pribadi","Membuat berita palsu","Menghina orang berbeda pendapat"],0],
+["Kesimpulan materi IPTEK dan berpikir kritis adalah ...",["Teknologi perlu digunakan bijak disertai kemampuan menilai informasi","Teknologi tanpa tanggung jawab","Semua informasi internet benar","Berpikir kritis tidak diperlukan"],0]
+];
+
+const DEFAULT_USERS={
+creator:{password:"Creator123!",role:"creator"},
+player01:{password:"Player123!",role:"player"},
+player02:{password:"Player123!",role:"player"},
+player03:{password:"Player123!",role:"player"}
+};
+
+let users=loadJSON("paiUsers",DEFAULT_USERS);
+let results=loadJSON("paiResults",[]);
+let role="";
+let currentUser="";
+let questionIndex=0;
+let score=0;
+let correct=0;
+let answered=false;
+
+function $(id){return document.getElementById(id)}
+
+function loadJSON(key,fallback){
+try{
+const value=localStorage.getItem(key);
+return value?JSON.parse(value):fallback;
+}catch(e){return fallback}
+}
+
+function saveUsers(){localStorage.setItem("paiUsers",JSON.stringify(users))}
+function saveResults(){localStorage.setItem("paiResults",JSON.stringify(results))}
+
+function showScreen(id){
+document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+$(id).classList.add("active");
+window.scrollTo(0,0);
+}
+
+function openLogin(selectedRole){
+role=selectedRole;
+$("loginTitle").textContent=selectedRole==="creator"?"🛠️ Login Creator":"🎮 Login Pemain";
+$("loginSub").textContent=selectedRole==="creator"?"Masuk untuk melihat rekap nilai pemain.":"Masuk untuk mengerjakan kuis.";
+$("loginHint").innerHTML=selectedRole==="creator"
+?"Demo Creator: <b>creator</b> / <b>Creator123!</b>"
+:"Demo Pemain: <b>player01</b> / <b>Player123!</b>";
+$("loginMsg").innerHTML="";
+$("loginUser").value="";
+$("loginPass").value="";
+showScreen("login");
+}
+
+function openRegister(){
+$("registerMsg").innerHTML="";
+$("regUser").value="";
+$("regPass").value="";
+$("regPass2").value="";
+showScreen("register");
+}
+
+function registerPlayer(){
+const username=$("regUser").value.trim();
+const password=$("regPass").value;
+const confirm=$("regPass2").value;
+
+if(username.length<3)return message("registerMsg","Username minimal 3 karakter.","error");
+if(!/^[A-Za-z0-9_]+$/.test(username))return message("registerMsg","Username hanya boleh huruf, angka, dan underscore.","error");
+if(users[username])return message("registerMsg","Username sudah digunakan.","error");
+if(password.length<4)return message("registerMsg","Password minimal 4 karakter.","error");
+if(password!==confirm)return message("registerMsg","Konfirmasi password tidak sama.","error");
+
+users[username]={password:password,role:"player"};
+saveUsers();
+openLogin("player");
+$("loginUser").value=username;
+message("loginMsg","Akun berhasil dibuat. Silakan login.","success");
+}
+
+function login(){
+const username=$("loginUser").value.trim();
+const password=$("loginPass").value;
+const account=users[username];
+
+if(!account||account.password!==password||account.role!==role){
+return message("loginMsg","Username, password, atau role tidak sesuai.","error");
+}
+
+currentUser=username;
+
+if(role==="player"){
+$("playerWelcome").textContent="Halo, "+currentUser+" 👋";
+$("newPlayerUser").value=currentUser;
+$("newPlayerPass").value="";
+resetPlayerView();
+showScreen("player");
+}else{
+$("newCreatorUser").value=currentUser;
+$("newCreatorPass").value="";
+$("creatorMsg").innerHTML="";
+updateDashboard();
+showScreen("creator");
+}
+}
+
+function logout(){
+currentUser="";
+role="";
+showScreen("home");
+}
+
+function resetPlayerView(){
+$("startCard").classList.remove("hidden");
+$("quizCard").classList.add("hidden");
+$("resultCard").classList.add("hidden");
+}
+
+function startQuiz(){
+questionIndex=0;
+score=0;
+correct=0;
+answered=false;
+$("startCard").classList.add("hidden");
+$("resultCard").classList.add("hidden");
+$("quizCard").classList.remove("hidden");
+renderQuestion();
+}
+
+function renderQuestion(){
+answered=false;
+const item=QUESTIONS[questionIndex];
+$("questionNumber").textContent="Soal "+(questionIndex+1)+"/"+QUESTIONS.length;
+$("currentScore").textContent="Skor: "+score;
+$("progressBar").style.width=((questionIndex)/QUESTIONS.length*100)+"%";
+$("questionText").textContent=item[0];
+$("answerBox").innerHTML="";
+$("feedback").textContent="Pilih satu jawaban.";
+$("nextButton").disabled=true;
+
+item[1].forEach((answer,index)=>{
+const button=document.createElement("button");
+button.type="button";
+button.className="answer";
+button.textContent=String.fromCharCode(65+index)+". "+answer;
+button.addEventListener("click",function(){selectAnswer(index,button)});
+$("answerBox").appendChild(button);
+});
+}
+
+function selectAnswer(selected,button){
+if(answered)return;
+answered=true;
+
+const item=QUESTIONS[questionIndex];
+const buttons=Array.from(document.querySelectorAll(".answer"));
+buttons.forEach(b=>b.disabled=true);
+buttons[item[2]].classList.add("correct");
+
+if(selected===item[2]){
+score+=10;
+correct++;
+button.classList.add("correct");
+$("feedback").textContent="✅ Benar! +10 poin.";
+}else{
+button.classList.add("wrong");
+$("feedback").textContent="❌ Jawaban belum tepat.";
+}
+
+$("currentScore").textContent="Skor: "+score;
+$("nextButton").disabled=false;
+}
+
+function nextQuestion(){
+if(!answered)return;
+if(questionIndex<QUESTIONS.length-1){
+questionIndex++;
+renderQuestion();
+}else{
+finishQuiz();
+}
+}
+
+function finishQuiz(){
+$("progressBar").style.width="100%";
+$("quizCard").classList.add("hidden");
+
+const wrong=QUESTIONS.length-correct;
+const percent=Math.round(score/(QUESTIONS.length*10)*100);
+
+results.push({
+username:currentUser,
+correct:correct,
+wrong:wrong,
+score:score,
+percent:percent,
+time:new Date().toLocaleString("id-ID")
+});
+saveResults();
+
+$("resultCard").innerHTML=
+'<span class="badge">HASIL PERMAINAN</span>'+
+'<div class="score">'+score+'</div>'+
+'<h2>Nilai '+percent+'%</h2>'+
+'<p>'+correct+' benar • '+wrong+' salah</p>'+
+'<p class="muted">Hasil sudah tersimpan dan dapat dilihat Creator.</p>'+
+'<div class="buttons">'+
+'<button class="btn" onclick="startQuiz()">🔄 Main Lagi</button>'+
+'<button class="btn secondary" onclick="logout()">Keluar</button>'+
+'</div>';
+$("resultCard").classList.remove("hidden");
+}
+
+function changePlayerAccount(){
+if(!currentUser||role!=="player")return;
+
+const newUsername=$("newPlayerUser").value.trim();
+const newPassword=$("newPlayerPass").value;
+
+if(newUsername.length<3)return message("accountMsg","Username minimal 3 karakter.","error");
+if(!/^[A-Za-z0-9_]+$/.test(newUsername))return message("accountMsg","Username hanya boleh huruf, angka, dan underscore.","error");
+if(newUsername!==currentUser&&users[newUsername])return message("accountMsg","Username tersebut sudah digunakan.","error");
+if(newPassword&&newPassword.length<4)return message("accountMsg","Password minimal 4 karakter.","error");
+
+const old=currentUser;
+users[newUsername]={
+password:newPassword||users[old].password,
+role:"player"
+};
+if(newUsername!==old)delete users[old];
+
+currentUser=newUsername;
+saveUsers();
+
+$("playerWelcome").textContent="Halo, "+currentUser+" 👋";
+$("newPlayerUser").value=currentUser;
+$("newPlayerPass").value="";
+message("accountMsg","Akun berhasil diperbarui.","success");
+}
+
+function changeCreatorAccount(){
+if(!currentUser||role!=="creator")return;
+
+const newUsername=$("newCreatorUser").value.trim();
+const newPassword=$("newCreatorPass").value;
+
+if(newUsername.length<3)return message("creatorMsg","Username minimal 3 karakter.","error");
+if(!/^[A-Za-z0-9_]+$/.test(newUsername))return message("creatorMsg","Username hanya boleh huruf, angka, dan underscore.","error");
+if(newUsername!==currentUser&&users[newUsername])return message("creatorMsg","Username tersebut sudah digunakan.","error");
+if(newPassword&&newPassword.length<4)return message("creatorMsg","Password minimal 4 karakter.","error");
+
+const old=currentUser;
+users[newUsername]={
+password:newPassword||users[old].password,
+role:"creator"
+};
+if(newUsername!==old)delete users[old];
+
+currentUser=newUsername;
+saveUsers();
+
+$("newCreatorUser").value=currentUser;
+$("newCreatorPass").value="";
+message("creatorMsg","Akun Creator berhasil diperbarui.","success");
+}
+
+function updateDashboard(){
+const total=results.length;
+const average=total?Math.round(results.reduce((sum,r)=>sum+r.score,0)/total):0;
+const highest=total?Math.max(...results.map(r=>r.score)):0;
+
+$("totalAttempts").textContent=total;
+$("averageScore").textContent=average;
+$("highestScore").textContent=highest;
+
+if(!total){
+$("resultRows").innerHTML='<tr><td colspan="6" style="text-align:center">Belum ada hasil.</td></tr>';
+return;
+}
+
+$("resultRows").innerHTML=results.slice().reverse().map(r=>
+"<tr><td>"+escapeHTML(r.username)+"</td><td>"+r.correct+"</td><td>"+r.wrong+"</td><td>"+r.score+"</td><td>"+r.percent+"%</td><td>"+escapeHTML(r.time)+"</td></tr>"
+).join("");
+}
+
+function clearResults(){
+if(confirm("Hapus semua rekap nilai pemain?")){
+results=[];
+saveResults();
+updateDashboard();
+}
+}
+
+function exportCSV(){
+if(!results.length){
+alert("Belum ada data untuk diekspor.");
+return;
+}
+
+const rows=[
+["Username","Benar","Salah","Skor","Nilai","Waktu"],
+...results.map(r=>[r.username,r.correct,r.wrong,r.score,r.percent+"%",r.time])
+];
+
+const csv=rows.map(row=>row.map(value=>{
+const text=String(value).replace(/"/g,'""');
+return '"'+text+'"';
+}).join(",")).join("\r\n");
+
+const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
+const url=URL.createObjectURL(blob);
+const link=document.createElement("a");
+link.href=
